@@ -10,28 +10,29 @@ survivors — live predictions with no orders placed — and promotes only the
 strategies that clear statistical tests designed to punish luck. Three
 automated paper-trading books then trade the output, 24/7, on real venues.
 
-I built all of it: the research engines, the order-execution services, the
-FastAPI backend, the Next.js dashboard, and the operations underneath. The
-full source stays private because it runs live accounts; this repo is the
-guided tour, with short excerpts quoted from the real code.
+Designed, built, and operated by one person: the research engines, the
+order-execution services, the FastAPI backend, the Next.js dashboard, and the
+operations underneath. The full source stays private because it runs live
+accounts; this repo is the guided tour, with short excerpts quoted from the
+real code.
 
 ## The three books (live on the demo's front page)
 
 | Book | Venue | What it does |
 |---|---|---|
 | **BTC 15-min predictor** | Kalshi binary markets | Trades the research pipeline's best-performing algorithm on 15-minute BTC up/down contracts. All stats reflect only the current strategy version, and are labeled that way. |
-| **Equity trader** | Alpaca, $1M paper book | A long-only conviction book drawn from my 600-name research screen, with a dynamic T-bill reserve and an LLM reviewer in an advisory role. Scored against SPY, not against zero. |
+| **Equity trader** | Alpaca, $1M paper book | A long-only conviction book drawn from a 600-name research screen, with a dynamic T-bill reserve and an LLM reviewer in an advisory role. Scored against SPY, not against zero. |
 | **Options trader** | Alpaca, cash-secured-put wheel | Scans, opens, manages and closes its own positions three times a day. Every decision is logged with its reason. |
 
 All three trade paper money on real venues — the point is the machinery, and
 the numbers are allowed to be red. The demo's landing page shows their live
 P&L, including the flat one.
 
-## What I'd want you to look at
+## Where to look
 
 - **[docs/METHODOLOGY.md](docs/METHODOLOGY.md)** — why most of this system
-  exists to say *no*. The measured bid–ask spread that repriced my whole
-  leaderboard from +$67 to −$26 (and why I shipped that number anyway), the
+  exists to say *no*. The measured bid–ask spread that repriced the whole
+  leaderboard from +$67 to −$26 (and why that number shipped anyway), the
   significance threshold that rises with the number of strategies tested — so
   33,000 tries can't crown a winner on luck alone — and the three studies
   whose result was "don't build it."
@@ -52,19 +53,19 @@ P&L, including the flat one.
 ## What the demo deliberately doesn't show
 
 The demo is the real dashboard compiled with a view-only flag — same
-components, same live backend — minus everything that is my personal account
-rather than the platform. What's excluded:
+components, same live backend — minus everything that belongs to a personal
+account rather than the platform. What's excluded:
 
-- **My Robinhood account.** The full dashboard's home is an account cockpit:
-  real holdings with live P/L vs cost, a you-vs-S&P benchmark chart traced
-  from actual deposits, a risk tab, orders and watchlists, and per-symbol
-  position cards where the AI's verdict includes a recommended action for my
-  own position (buy more / hold / trim) scored against my actual cost basis.
+- **The owner's Robinhood account.** The full dashboard's home is an account
+  cockpit: real holdings with live P/L vs cost, a you-vs-S&P benchmark chart
+  traced from actual deposits, a risk tab, orders and watchlists, and
+  per-symbol position cards where the AI's verdict includes a recommended
+  action (buy more / hold / trim) scored against actual cost basis.
   The demo strips all of it — the equity screen shows model output only, and
   clicking a symbol shows research, never positions.
 - **Real options positions.** The private Options view has three sub-tabs —
-  my owned puts (as reported by the broker, per-contract P/L), the recommended
-  cash-secured-put scan, and covered-call analysis on my real lots. The demo
+  owned puts (as reported by the broker, per-contract P/L), the recommended
+  cash-secured-put scan, and covered-call analysis on real lots. The demo
   keeps only the scanner.
 - **Live AI Q&A.** The private dashboard has free-form ask-anything panels
   and on-demand deep-dive regeneration (local LLMs + frontier models). Those
