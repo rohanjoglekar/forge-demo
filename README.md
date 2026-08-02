@@ -33,8 +33,8 @@ P&L, including the flat one.
   exists to say *no*. The measured bid–ask spread that repriced my whole
   leaderboard from +$67 to −$26 (and why I shipped that number anyway), the
   significance threshold that rises with the number of strategies tested — so
-  33,000 tries cannot produce a winner by luck — and the three studies whose
-  result was "don't build it."
+  33,000 tries can't crown a winner on luck alone — and the three studies
+  whose result was "don't build it."
 - **[docs/SAFETY.md](docs/SAFETY.md)** — how a system that lets an LLM write
   and execute strategy code stays safe: a static code screen inside a
   bubblewrap sandbox with a read-only filesystem and no network access. Also
