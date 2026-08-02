@@ -50,8 +50,7 @@ def _nonnice_busy_frac(window_s: float) -> float | None:
 After the switch: zero spurious yields, and eight strategy families explored
 in the same wall-clock time that previously produced idle waiting. It falls
 back to the 1-minute load average if `/proc/stat` reads fail, because a
-throttle that
-crashes throttles nothing.
+throttle that crashes throttles nothing.
 
 ## Deploys: push → Actions → one locked script
 
