@@ -1,8 +1,11 @@
 # Methodology — the rejection criteria are the product
 
-The research pipeline has evaluated 33,000+ strategy variants over 540 days
-of BTC data. Almost all of them fail. That is the design: a research pipeline
-that mostly says yes is a random-number generator with extra steps.
+This document explains how Forge decides that a strategy result can be
+believed: the measured cost model, the data discipline, the multiple-testing
+correction, and the negative results that stopped work. It exists because the
+research pipeline has evaluated 33,000+ strategy variants over 540 days of
+BTC data and almost all of them fail — that is the design, since a research
+pipeline that mostly says yes is a random-number generator with extra steps.
 Everything below exists to make a *yes* mean something.
 
 ## Trading costs are measured, not assumed
@@ -19,16 +22,18 @@ tail_half_spread_cents: float = 4.25  # deci-cent tick region: p<0.10 or p>0.90
 ```
 
 Those numbers used to be 0.5¢ and 0.1¢ — plausible-sounding, and wrong by an
-order of magnitude. When I studied the recorded book (n=398 tradable
-entry-minute quotes; median full spread ~10–11¢), I recalibrated to 5.0¢ and
-re-priced the entire leaderboard. The venue's top-ranked strategies went from
-**+$67.53 to −$26.50 overnight.** I shipped it anyway, because the
-alternative is a dashboard that lies to me at the exact moment a promotion
+order of magnitude. A study of the recorded book (n=398 tradable
+entry-minute quotes; median full spread ~10–11¢) forced a recalibration to
+5.0¢ and a
+re-pricing of the entire leaderboard. The venue's top-ranked strategies went
+from
+**+$67.53 to −$26.50 overnight.** It shipped anyway, because the
+alternative is a dashboard that lies at the exact moment a promotion
 decision reads it. The best strategy's break-even spread (6.11¢) is now
 displayed next to the measured one — that margin *is* the research question.
 
 The original 0.1¢ "tail" number was a category error worth naming: below 10¢
-the venue's tick size is 0.1¢, and I had written the tick size down as the
+the venue's tick size is 0.1¢, and the tick size had been written down as the
 spread. The book can quote in fine ticks and still be 8¢ wide.
 
 ## Train / validation / holdout, and the holdout stays pristine
@@ -78,7 +83,7 @@ patch release would silently poison comparisons.
 
 ## Negative results are kept, and they stop work
 
-Three studies exist specifically so I would *stop* building things:
+Three studies exist specifically to *stop* things from being built:
 
 - **Maker viability** — re-priced all 625 perpetual variants under
   best-case maker economics (fill-everything, 5 bps). 0 of 625 significant on

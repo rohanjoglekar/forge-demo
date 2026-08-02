@@ -1,8 +1,10 @@
 # Safety — letting an LLM write code without letting it drive
 
-Forge has two dangerous surfaces: strategy code written by a language model
-and executed automatically, and trading services that could, if enabled,
-spend real money. The rules for both are mechanical, not aspirational.
+This document covers how Forge contains its two dangerous surfaces: strategy
+code written by a language model and executed automatically, and trading
+services that could, if enabled, spend real money. It exists because both
+surfaces demand rules that are mechanical, not aspirational — and those rules
+are laid out below.
 
 ## The code-generation sandbox
 
@@ -43,8 +45,9 @@ terminal state is *proposed*; a human installs a proposed strategy, and a
 human arms a trading service — flips the switch that allows it to place live
 orders. The live-execution configs sit behind two independent switches (an
 execution-mode flag and a runtime armed flag), and the public demo build
-strips every mutating control at compile time. Same rule as my other
-project's money path: fail open where it protects availability, fail closed
+strips every mutating control at compile time. The same rule governs the
+money path in the companion voteconcordia project: fail open where it
+protects availability, fail closed
 where it protects money.
 
 ## The stop-loss ordering bug, kept as a scar
@@ -75,7 +78,7 @@ because any one of them failing should not be interesting:
    arm/install/regenerate controls from the bundle rather than hiding them.
 3. **Data** — the pages it renders are research output and paper-account
    performance; account surfaces (holdings, positions, cost basis, advice on
-   my own positions) are stripped server- and client-side.
+   real positions) are stripped server- and client-side.
 
 TLS via Let's Encrypt; the bare hostname redirects to the demo instead of
 falling through to the real dashboard's auth prompt — a visitor should never

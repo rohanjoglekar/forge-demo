@@ -2,17 +2,15 @@
 
 **Live read-only demo: [forge-view.5.78.193.177.sslip.io](https://forge-view.5.78.193.177.sslip.io)** — real data, no login, nothing on it can place an order.
 
-Forge is an automated trading-research platform, built and run by one person
-on one Linux server. It generates trading-strategy variants, backtests them
+Forge is an automated trading-research platform running on one Linux server.
+It generates trading-strategy variants, backtests them
 against **measured** costs (real exchange fees plus the bid–ask spread
 recorded from the live order book, not an estimate), shadow-tests the
 survivors — live predictions with no orders placed — and promotes only the
 strategies that clear statistical tests designed to punish luck. Three
 automated paper-trading books then trade the output, 24/7, on real venues.
 
-Designed, built, and operated by one person: the research engines, the
-order-execution services, the FastAPI backend, the Next.js dashboard, and the
-operations underneath. The full source stays private because it runs live
+The full source stays private because it runs live
 accounts; this repo is the guided tour, with short excerpts quoted from the
 real code.
 
@@ -94,7 +92,7 @@ GitHub Actions → self-locking deploy script.
 
 [voteconcordia](https://github.com/rohanjoglekar/voteconcordia) — a real-money
 investment club decided by vote, executed in each member's own brokerage
-account. Same author, same philosophy: fail open where it protects people,
+account. Same philosophy: fail open where it protects people,
 fail closed where it protects money.
 
 ## Status

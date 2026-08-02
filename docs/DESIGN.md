@@ -1,7 +1,8 @@
-# Design — a dashboard that isn't allowed to flatter me
+# Design — a dashboard that isn't allowed to flatter its owner
 
-The dashboard is where I make promotion and go-live decisions, so its design
-rules are really research rules. The ones I'll defend hardest:
+This document sets out the dashboard's design rules and the incidents that
+produced them. Promotion and go-live decisions get made off this dashboard,
+so its design rules are really research rules. The ones defended hardest:
 
 ## Every number carries its window
 
@@ -49,9 +50,10 @@ The shadow-test log (live predictions with no orders placed) records every
 prediction, including one strategy — a vote across several models — that
 records PASS, meaning no position, every window. Eighty percent of the raw
 log was that strategy saying "nothing to do." The public demo defaults to
-*trades only* with a one-click toggle to the full log; my working dashboard
-defaults to everything, because PASS frequency is monitoring signal for me
-and noise for a first-time reader. Same data, different defaults, both
+*trades only* with a one-click toggle to the full log; the private working
+dashboard
+defaults to everything, because PASS frequency is monitoring signal for the
+operator and noise for a first-time reader. Same data, different defaults, both
 labeled with what's hidden.
 
 ## Tables must fit the screen they're read on

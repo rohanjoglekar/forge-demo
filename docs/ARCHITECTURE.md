@@ -1,5 +1,10 @@
 # Architecture — everything on one small server
 
+This document maps Forge's runtime: what runs on the server, how deploys
+work, and how the public demo relates to the private dashboard. It exists
+because the interesting engineering here is operational — the constraint of
+one small shared box shaped almost every decision below.
+
 Everything runs on a single 4-core, 8 GB Linux VPS: the research daemon,
 three trading services, a FastAPI backend, two Next.js frontends, local LLMs
 under Ollama, and the nginx edge. The constraint is deliberate — most of the
@@ -65,7 +70,7 @@ demo. Two hardenings came out of one very bad day:
 - **A postmortem worth retelling.** The demo kept dying with `next: not found`
   after every deploy for days, surviving any number of clean rebuilds. The
   root cause was a single tracked file: the demo's `node_modules` was a
-  **committed symlink** to a path on my Mac. `.gitignore` had
+  **committed symlink** to a path on the development Mac. `.gitignore` had
   `node_modules/` — but a trailing-slash pattern matches only directories,
   not symlinks, so the link slipped into a commit, and every deploy's
   `git reset --hard` re-planted a dangling `/Users/...` path over whatever
