@@ -47,6 +47,37 @@ including the flat one.
   win rate carries its measurement window, a calibrated 4.25¢ never renders as
   4.3¢, and green is reserved for safety — "LIVE" is not a color of success.
 
+## What the demo deliberately doesn't show
+
+The demo is the real dashboard compiled with a view-only flag — same
+components, same live backend — minus everything that is my personal account
+rather than the platform. If you're evaluating the work, it helps to know
+what's behind the curtain:
+
+- **My Robinhood account.** The full dashboard's home is an account cockpit:
+  real holdings with live P/L vs cost, a you-vs-S&P benchmark chart traced
+  from actual deposits, a risk tab, orders and watchlists, and per-symbol
+  position cards where the AI's verdict includes a *your-book* action (buy
+  more / hold / trim) scored against my actual cost basis. The demo strips all
+  of it — the equity screen shows model output only, and clicking a symbol
+  shows research, never positions.
+- **Real options positions.** The private Options view has three sub-tabs —
+  my owned puts (broker-truth, per-contract P/L), the recommended CSP scan,
+  and covered-call analysis on my real lots. The demo keeps only the scanner.
+- **Live AI Q&A.** The private dashboard has free-form ask-anything panels
+  and on-demand deep-dive regeneration (local LLMs + frontier models). Those
+  are POSTs, and the demo's gateway refuses every mutation — so the demo
+  serves cached narratives only and says so where a button would be.
+- **Controls.** Installing a proposed variant, switching the active
+  algorithm, arming/disarming runners, tuning the promotion gate — all
+  compiled out of the demo build and 403'd at the gateway anyway.
+- **The perpetuals venue.** The research lab runs two venues; the demo pins
+  to the 15-minute binaries because the perp view exists mostly to document
+  negative results (see METHODOLOGY) and needs that context to read fairly.
+- **The rest of Forge.** The platform also runs a Discord agent fleet
+  (research concierge, code agents), an MCP server for phone access, and a
+  private investment-club system — none of which belong in a public surface.
+
 ## Stack
 
 Python research engines (numpy/pandas, walk-forward and LLM-designed families)
