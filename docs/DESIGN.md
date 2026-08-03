@@ -25,7 +25,11 @@ text from every table without removing the caveats themselves.
 
 A performance statistic without a defined time window changes meaning whenever a counter resets or a strategy is replaced. Forge makes the measurement start date part of the data contract. Kalshi performance is calculated from the activation date of the current strategy version, the backend returns that date with each result, and the interface labels every dependent figure with an explicit qualifier such as *since Jul 11*. Because 51% of the account's lifetime orders predate the current strategy, an unlabeled lifetime statistic would combine materially different systems.
 
-This rule exposed a real defect in the public demonstration. A stale component rendered **“P/L vs $1,000: +$191.11” beside $967 of equity**. Both values were individually correct, but their juxtaposition was false: the +$191.11 covered only the current strategy version, while $1,000 was the account's lifetime opening balance. The corrected card measures P&L from the $776.21 of equity present when the current strategy began. Every displayed balance relationship must now reconcile arithmetically from the values shown.
+This rule exposed two defects, the second considerably more serious than the first. A stale component rendered a profit figure beside an equity balance that could not be reconciled against it, because the two values were measured from different starting points. Relabeling the card was the obvious repair.
+
+Requiring the numbers to reconcile *arithmetically*, rather than merely to be labeled, is what exposed the underlying defect. The reported profit could not be derived from the settled trades, so the trade-level records were recomputed independently and reconciled against the broker's own balance. The P&L reconstruction had been reading cost basis from field names the venue does not return; any settlement outside the recent fill window was therefore priced at zero cost and recorded its entire payout as profit. The account had not been profitable at all. Correcting the field names inverted the reported result from a substantial gain to a modest loss, and that corrected figure is what the public page now displays.
+
+The operational rule that follows is stronger than the labeling rule that started it: reconcile every derived financial figure against an external source of truth — here, the broker's balance — rather than against another internal computation. Two internal paths agreeing means only that they share assumptions.
 
 ## Trading modes use one risk vocabulary
 
