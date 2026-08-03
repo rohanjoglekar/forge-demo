@@ -10,65 +10,48 @@ remain deterministic on shared hardware.
 
 ## Production topology
 
+### Research and promotion plane
+
 ```mermaid
+%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 65, "curve": "linear"}}}%%
 flowchart TB
-    subgraph external["External systems"]
-        market["Exchange market data and order books"]
-        brokers["Broker and venue APIs"]
-        llms["Local and frontier model providers"]
-    end
-
-    subgraph research["Research plane"]
-        collectors["Market-data collectors"]
-        generators["Strategy-family generators"]
-        backtests["Cost-aware backtest engines"]
-        validation["Chronological and statistical validation"]
-        shadow["Live shadow evaluator"]
-        promotion["Versioned promotion registry"]
-        collectors --> generators --> backtests --> validation --> shadow --> promotion
-    end
-
-    subgraph execution["Execution plane"]
-        books["Independent paper-trading books"]
-        controls["Mode · arming · exposure controls"]
-        reconcile["Venue reconciliation and journals"]
-        controls --> books --> reconcile
-    end
-
-    subgraph product["Application plane"]
-        readmodels["Research and execution read models"]
-        api["FastAPI aggregation layer"]
-        dashboard["Authenticated operations dashboard"]
-        demo["Public view-only build"]
-        readmodels --> api --> dashboard
-        api --> demo
-    end
-
-    subgraph operations["Operations plane"]
-        scheduler["systemd services and timers"]
-        governor["Priority-aware compute governor"]
-        sentinel["Health and state monitoring"]
-        deploy["Tested, serialized deployment"]
-    end
-
-    market --> collectors
-    llms --> generators
-    promotion --> controls
-    books <--> brokers
-    reconcile --> readmodels
-    validation --> readmodels
-    scheduler -. schedules .-> collectors
-    scheduler -. schedules .-> books
-    governor -. protects capacity .-> research
-    sentinel -. observes .-> research
-    sentinel -. observes .-> execution
-    deploy -. releases .-> product
+    sources["Market data<br/>and model providers"] --> generation["Strategy-family<br/>generation"]
+    generation --> backtest["Cost-aware<br/>backtest engines"]
+    backtest --> validation["Chronological and<br/>statistical validation"]
+    validation --> shadow["Live shadow<br/>evaluation"]
+    shadow --> registry["Versioned proposal<br/>registry"]
 ```
 
-The diagram is intentionally architectural rather than source-level. It shows
-runtime responsibilities, promotion flow, and trust boundaries while omitting
-private package structure, account identifiers, configuration values, and
-venue-specific execution logic.
+### Execution plane
+
+```mermaid
+%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 65, "curve": "linear"}}}%%
+flowchart TB
+    registry["Eligible proposal"] --> approval["Human installation<br/>and arming"]
+    approval --> controls["Mode and<br/>exposure controls"]
+    controls --> books["Independent<br/>paper books"]
+    books <--> venues["Broker and<br/>venue APIs"]
+    books --> journals["Reconciliation<br/>and journals"]
+```
+
+### Product and operations planes
+
+```mermaid
+%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 60, "rankSpacing": 60, "curve": "linear"}}}%%
+flowchart TB
+    state["Research results and execution journals"] --> api["FastAPI aggregation layer"]
+    api --> private["Authenticated operations dashboard"]
+    api --> public["Public view-only build"]
+    scheduler["systemd services and timers"] -. schedules .-> state
+    governor["Priority-aware compute governor"] -. protects .-> state
+    sentinel["Health and freshness monitoring"] -. observes .-> state
+    deploy["Tested, serialized deployment"] -. releases .-> api
+```
+
+These diagrams are intentionally architectural rather than source-level. They
+show runtime responsibilities, promotion flow, and trust boundaries while
+omitting private package structure, account identifiers, configuration values,
+and venue-specific execution logic.
 
 ## The service map
 

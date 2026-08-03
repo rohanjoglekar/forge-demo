@@ -23,28 +23,69 @@ The public demonstration exposes the real production dashboard and live research
 
 ## System at a glance
 
+### Research lifecycle
+
 ```mermaid
-flowchart LR
-    feeds["Market and brokerage data"] --> research["Research plane<br/>generate · backtest · validate"]
-    models["Local and frontier models"] --> research
-    research --> shadow["Live shadow testing<br/>predictions only"]
-    shadow --> registry["Promotion registry<br/>statistical and risk gates"]
-    registry -->|human-approved installation| books["Automated paper books<br/>binary · equity · options"]
-    books <--> venues["Live venue infrastructure"]
-    research --> state["Versioned research state"]
-    books --> state
-    state --> api["FastAPI presentation layer"]
-    api --> private["Authenticated operations dashboard"]
-    api --> public["Public view-only demonstration"]
-    ops["systemd · monitoring · serialized deploys"] -. supervises .-> research
-    ops -. supervises .-> books
-    ops -. supervises .-> api
+%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 65, "curve": "linear"}}}%%
+flowchart TB
+    inputs["Market data<br/>and generated hypotheses"] --> backtest["Cost-aware<br/>backtesting"]
+    backtest --> validation["60 / 20 / 20<br/>validation gates"]
+    validation --> shadow["Live shadow testing<br/>no orders"]
+    shadow --> proposed["Proposed strategy<br/>human review required"]
 ```
 
-The system deliberately separates research, live observation, promotion,
-execution, and presentation. A model can move between those planes only
-through explicit gates; the public interface is downstream of recorded state
-and has no route back into trading controls.
+### From proposal to paper execution
+
+```mermaid
+%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 65, "curve": "linear"}}}%%
+flowchart TB
+    proposed["Proposed strategy"] --> approval["Human installation<br/>and arming decision"]
+    approval --> books["Automated paper books"]
+    books <--> venues["Live venue infrastructure"]
+```
+
+### From recorded state to readers
+
+```mermaid
+%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 60, "rankSpacing": 60, "curve": "linear"}}}%%
+flowchart TB
+    research["Research results"] --> state["Versioned read models"]
+    journals["Execution journals"] --> state
+    state --> api["Read-oriented API"]
+    api --> private["Private operations dashboard"]
+    api --> public["Public view-only demonstration"]
+```
+
+Research, live observation, strategy eligibility, execution, and presentation
+are separate responsibilities. Passing a statistical gate does not authorize
+an order: it produces a proposal that still requires a human installation and
+arming decision. The public interface is downstream of recorded state and has
+no path back into trading controls.
+
+## The BTC Research Lab guide
+
+The row labeled **“How the BTC Research Lab works”** on the Research page is a
+read-only methodology accordion. Clicking the row expands or collapses an
+explanation; it does not start research, change a threshold, select a strategy,
+arm a service, or place an order.
+
+```mermaid
+%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 60, "rankSpacing": 60, "curve": "linear"}}}%%
+flowchart TB
+    click["Click: How the BTC Research Lab works"] --> panel["Expand the read-only methodology guide"]
+    panel --> split["60 / 20 / 20<br/>train · validation · holdout"]
+    split --> costs["Fees · spread · slippage<br/>and modeled-price caveats"]
+    costs --> gates["Backtest gates<br/>and shadow-to-proposed gates"]
+    gates --> active["What install and active mean<br/>versus human arming"]
+    panel -. never triggers .-> actions["Research runs · configuration changes<br/>strategy installation · order placement"]
+```
+
+The expanded guide reads current methodology values from the dashboard data so
+its fee and friction descriptions remain aligned with the research engine. It
+also makes the critical distinction between **installing** a tracked research
+selection and **arming** an execution service: installation records which
+variant the research surfaces treat as selected; arming remains a separate,
+human-controlled action outside the research page.
 
 ## What this repository demonstrates
 

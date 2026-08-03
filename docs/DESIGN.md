@@ -7,6 +7,20 @@ interface rules for measurement windows, risk vocabulary, calibrated
 precision, log filtering, analytical tables, and live-data failure, together
 with the production incidents that established those rules.
 
+## Methodology is progressive disclosure, not hidden context
+
+The **“How the BTC Research Lab works”** row is an expandable methodology
+guide. Its collapsed state keeps the research workspace focused on current
+results; expanding it reveals the chronological split, friction model,
+modeled-price limitations, backtest gates, shadow-promotion gates, installation
+semantics, and scorekeeping rules in one place.
+
+The control changes presentation state only. It cannot run research, modify a
+gate, install a candidate, arm a trader, or place an order. Methodology values
+that can change with engine configuration are read from the dashboard payload
+rather than duplicated as static UI copy. The design removes repeated caveat
+text from every table without removing the caveats themselves.
+
 ## Every metric identifies its measurement window
 
 A performance statistic without a defined time window changes meaning whenever a counter resets or a strategy is replaced. Forge makes the measurement start date part of the data contract. Kalshi performance is calculated from the activation date of the current strategy version, the backend returns that date with each result, and the interface labels every dependent figure with an explicit qualifier such as *since Jul 11*. Because 51% of the account's lifetime orders predate the current strategy, an unlabeled lifetime statistic would combine materially different systems.

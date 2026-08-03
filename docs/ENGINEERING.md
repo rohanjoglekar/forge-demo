@@ -23,6 +23,28 @@ is to build a controlled path from hypothesis generation to production
 observation while preserving the economics, evidence, and operational state
 required to decide whether a result should be trusted.
 
+## Strategy promotion decision map
+
+```mermaid
+%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 55, "curve": "linear"}}}%%
+flowchart TB
+    candidate["Backtested candidate"] --> economics{"Current economics version?"}
+    economics -- "No" --> reprice["Reprice before comparison"]
+    economics -- "Yes" --> validation{"Validation gates pass?"}
+    validation -- "No" --> research["Remain in research"]
+    validation -- "Yes" --> shadow["Enter live shadow testing<br/>predictions only"]
+    shadow --> evidence{"Required live evidence passes?"}
+    evidence -- "No" --> observe["Continue observing<br/>or demote"]
+    evidence -- "Yes" --> proposed["Mark as proposed"]
+    proposed --> human["Human installation review"]
+    human --> paper["Eligible for paper execution"]
+```
+
+The automated pipeline can advance a candidate only as far as **proposed**.
+The final transition into an executing paper book remains an explicit human
+decision, preserving a clear boundary between statistical eligibility and
+operational authority.
+
 ## Hard problems and decisions
 
 | Problem | Engineering decision | Public evidence |
