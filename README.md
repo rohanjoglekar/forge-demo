@@ -8,9 +8,53 @@ architecture, and design documents in this repository.
 
 **Live read-only demonstration: [forge-view.5.78.193.177.sslip.io](https://forge-view.5.78.193.177.sslip.io)** — production data, no authentication required, and no capability to place orders.
 
-Forge is an end-to-end automated quantitative research and algorithmic trading platform deployed on a single Linux server. The platform systematically generates multi-variant trading strategies and rigorously backtests them against measured market costs, including live exchange fees and observed bid–ask spreads rather than theoretical estimates. To preserve statistical integrity, surviving models undergo shadow testing through live, order-free prediction streams. Strategies that clear the platform's strict, risk-adjusted performance thresholds are promoted to three automated paper-trading books operating continuously across Kalshi and Alpaca.
+Forge is an end-to-end automated quantitative research and algorithmic trading
+platform deployed on a single Linux server. The platform systematically
+generates multi-variant trading strategies and rigorously backtests them
+against measured market costs, including live exchange fees and observed
+bid–ask spreads rather than theoretical estimates. To preserve statistical
+integrity, surviving models undergo shadow testing through live, order-free
+prediction streams. Strategies that clear the platform's strict,
+risk-adjusted performance thresholds become eligible for human-approved
+installation in three automated paper-trading books operating continuously
+across Kalshi and Alpaca.
 
 The public demonstration exposes the real production dashboard and live research outputs through a deliberately constrained, read-only interface. The complete source remains private because it operates continuously against connected brokerage and exchange accounts; this repository provides an auditable technical overview, including focused excerpts from the production codebase.
+
+## System at a glance
+
+```mermaid
+flowchart LR
+    feeds["Market and brokerage data"] --> research["Research plane<br/>generate · backtest · validate"]
+    models["Local and frontier models"] --> research
+    research --> shadow["Live shadow testing<br/>predictions only"]
+    shadow --> registry["Promotion registry<br/>statistical and risk gates"]
+    registry -->|human-approved installation| books["Automated paper books<br/>binary · equity · options"]
+    books <--> venues["Live venue infrastructure"]
+    research --> state["Versioned research state"]
+    books --> state
+    state --> api["FastAPI presentation layer"]
+    api --> private["Authenticated operations dashboard"]
+    api --> public["Public view-only demonstration"]
+    ops["systemd · monitoring · serialized deploys"] -. supervises .-> research
+    ops -. supervises .-> books
+    ops -. supervises .-> api
+```
+
+The system deliberately separates research, live observation, promotion,
+execution, and presentation. A model can move between those planes only
+through explicit gates; the public interface is downstream of recorded state
+and has no route back into trading controls.
+
+## What this repository demonstrates
+
+| Engineering area | Public evidence |
+|---|---|
+| **Quantitative research systems** | Automated strategy-family generation, chronological validation, measured transaction costs, multiple-testing correction, and retained negative findings. |
+| **Safety engineering** | Sandboxed model-generated code, shared backtest/shadow logic, independent execution gates, and incident-derived regression controls. |
+| **Production platform design** | Priority-aware resource scheduling, service supervision, deployment serialization, monitoring, and graceful degradation on constrained hardware. |
+| **Full-stack product engineering** | A typed API and production dashboard that preserve measurement scope, exact calibration, and risk semantics across private and public surfaces. |
+| **Operational judgment** | Documented failures, adverse recalibrations, rejected hypotheses, and explicit boundaries between validated behavior and work that remains unproven. |
 
 ## Automated trading books
 
@@ -24,6 +68,7 @@ All three books trade paper capital through live venue infrastructure. The objec
 
 ## Technical documentation
 
+- **[Engineering case study](docs/ENGINEERING.md)** — Provides an employer-oriented account of the system's scope, the hardest engineering problems, the decisions used to resolve them, and the evidence available for technical evaluation without exposing the private implementation.
 - **[Methodology](docs/METHODOLOGY.md)** — Details the measured spread model that repriced the leading strategy from +$67.53 to −$26.50; the multiple-testing correction that prevents 33,000 trials from manufacturing significance; and three formal studies whose conclusion was not to proceed.
 - **[Safety](docs/SAFETY.md)** — Describes how LLM-generated strategy code is statically screened and executed inside a network-isolated bubblewrap sandbox with a read-only filesystem. It also documents the stop-loss ordering defect that produced four identical −$5,927 backtests and the independent controls that keep live execution subject to explicit human authorization.
 - **[Architecture](docs/ARCHITECTURE.md)** — Maps the complete runtime on a four-core, 8 GB server, including the scheduler change that taught low-priority research workloads to yield correctly to live services and the deployment failure caused by a single committed symlink.

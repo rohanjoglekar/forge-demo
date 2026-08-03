@@ -8,6 +8,68 @@ dashboard and its public read-only build. The design treats resource
 contention as a first-class constraint so priority-sensitive trading workloads
 remain deterministic on shared hardware.
 
+## Production topology
+
+```mermaid
+flowchart TB
+    subgraph external["External systems"]
+        market["Exchange market data and order books"]
+        brokers["Broker and venue APIs"]
+        llms["Local and frontier model providers"]
+    end
+
+    subgraph research["Research plane"]
+        collectors["Market-data collectors"]
+        generators["Strategy-family generators"]
+        backtests["Cost-aware backtest engines"]
+        validation["Chronological and statistical validation"]
+        shadow["Live shadow evaluator"]
+        promotion["Versioned promotion registry"]
+        collectors --> generators --> backtests --> validation --> shadow --> promotion
+    end
+
+    subgraph execution["Execution plane"]
+        books["Independent paper-trading books"]
+        controls["Mode · arming · exposure controls"]
+        reconcile["Venue reconciliation and journals"]
+        controls --> books --> reconcile
+    end
+
+    subgraph product["Application plane"]
+        readmodels["Research and execution read models"]
+        api["FastAPI aggregation layer"]
+        dashboard["Authenticated operations dashboard"]
+        demo["Public view-only build"]
+        readmodels --> api --> dashboard
+        api --> demo
+    end
+
+    subgraph operations["Operations plane"]
+        scheduler["systemd services and timers"]
+        governor["Priority-aware compute governor"]
+        sentinel["Health and state monitoring"]
+        deploy["Tested, serialized deployment"]
+    end
+
+    market --> collectors
+    llms --> generators
+    promotion --> controls
+    books <--> brokers
+    reconcile --> readmodels
+    validation --> readmodels
+    scheduler -. schedules .-> collectors
+    scheduler -. schedules .-> books
+    governor -. protects capacity .-> research
+    sentinel -. observes .-> research
+    sentinel -. observes .-> execution
+    deploy -. releases .-> product
+```
+
+The diagram is intentionally architectural rather than source-level. It shows
+runtime responsibilities, promotion flow, and trust boundaries while omitting
+private package structure, account identifiers, configuration values, and
+venue-specific execution logic.
+
 ## The service map
 
 - `forge-btc-lab-daemon` — Continuously performs strategy generation,
@@ -94,3 +156,15 @@ the corresponding full-section payloads range from 600 KB to 2.5 MB. Static
 content renders independently, while live values appear only after a
 successful response, preventing transient API failures from displacing the
 page with loading or error states.
+
+## Public disclosure boundary
+
+This public architecture describes the control flow necessary to evaluate the
+engineering: how research becomes evidence, how evidence becomes an eligible
+strategy, how eligible strategies reach paper execution, and how production
+state reaches authenticated and public interfaces. It intentionally excludes
+private source code, strategy parameters, credentials, account topology,
+internal hostnames, mutable control endpoints, and operational recovery
+commands. Short excerpts elsewhere in this repository are selected to explain
+a safety or statistical property and are not sufficient to reproduce the
+production system.
