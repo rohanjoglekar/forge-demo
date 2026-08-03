@@ -1,14 +1,14 @@
 # Methodology — statistical validity before strategy promotion
 
-Forge treats rejection criteria as a primary research output. This document
-defines the controls used to determine whether a reported strategy result is
-credible: measured transaction costs, chronological data isolation,
-family-wise multiple-testing correction, versioned market economics, and the
-retention of negative findings. The pipeline has evaluated more than 33,000
-strategy variants across 540 days of BTC market data, and the overwhelming
-majority fail. That rejection rate is intentional; promotion is reserved for
-results that remain defensible after costs, selection effects, and live
-out-of-sample observation.
+This methodology document defines how Forge determines whether a quantitative
+strategy result is statistically credible and eligible to advance from
+research into shadow testing and automated paper trading. It covers measured
+transaction costs, chronological data isolation, family-wise multiple-testing
+correction, versioned market economics, and the retention of negative findings.
+The pipeline has evaluated more than 33,000 strategy variants across 540 days
+of BTC market data, and the overwhelming majority fail. That rejection rate is
+intentional; promotion is reserved for results that remain defensible after
+costs, selection effects, and live out-of-sample observation.
 
 ## Trading costs are measured, not assumed
 

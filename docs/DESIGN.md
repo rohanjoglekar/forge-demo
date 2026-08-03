@@ -1,6 +1,11 @@
 # Design — data integrity as an interface requirement
 
-Forge's dashboard informs model-promotion and execution decisions; its presentation rules are therefore extensions of the research methodology. The interface must preserve measurement scope, calibrated precision, and operational risk without selectively emphasizing favorable outcomes. This document defines the principal rules and the incidents that established them.
+This design document defines how Forge's dashboard presents quantitative
+research, trading performance, and operational state without distorting the
+evidence used for model-promotion and execution decisions. It explains the
+interface rules for measurement windows, risk vocabulary, calibrated
+precision, log filtering, analytical tables, and live-data failure, together
+with the production incidents that established those rules.
 
 ## Every metric identifies its measurement window
 

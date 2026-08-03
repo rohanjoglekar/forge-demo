@@ -1,13 +1,12 @@
 # Architecture — consolidated production deployment
 
-Forge consolidates its complete production runtime on a single four-core,
-8 GB Linux VPS: the quantitative research daemon, three automated trading
-services, a FastAPI backend, private and public Next.js applications, local
-language models under Ollama, and an nginx edge. This document maps those
-services, the deployment path, and the boundary between the authenticated
-dashboard and its public read-only build. Resource contention is treated as a
-first-class architectural constraint, and the operating model is designed to
-keep priority-sensitive trading workloads deterministic on shared hardware.
+This architecture document describes how Forge's research, trading,
+application, inference, networking, and deployment components operate together
+on a single four-core, 8 GB Linux VPS. It maps the service topology, resource
+priorities, serialized deployment path, and boundary between the authenticated
+dashboard and its public read-only build. The design treats resource
+contention as a first-class constraint so priority-sensitive trading workloads
+remain deterministic on shared hardware.
 
 ## The service map
 

@@ -1,5 +1,11 @@
 # Forge — automated quantitative research and trading infrastructure
 
+This README is the public technical overview and navigation guide for Forge.
+It introduces the platform's research mandate, automated trading books,
+production safeguards, public/private boundary, technology stack, and current
+operating status, then directs readers to the detailed methodology, safety,
+architecture, and design documents in this repository.
+
 **Live read-only demonstration: [forge-view.5.78.193.177.sslip.io](https://forge-view.5.78.193.177.sslip.io)** — production data, no authentication required, and no capability to place orders.
 
 Forge is an end-to-end automated quantitative research and algorithmic trading platform deployed on a single Linux server. The platform systematically generates multi-variant trading strategies and rigorously backtests them against measured market costs, including live exchange fees and observed bid–ask spreads rather than theoretical estimates. To preserve statistical integrity, surviving models undergo shadow testing through live, order-free prediction streams. Strategies that clear the platform's strict, risk-adjusted performance thresholds are promoted to three automated paper-trading books operating continuously across Kalshi and Alpaca.
