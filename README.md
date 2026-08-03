@@ -23,37 +23,34 @@ The public demonstration exposes the real production dashboard and live research
 
 ## System at a glance
 
-### Research lifecycle
-
 ```mermaid
-%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 65, "curve": "linear"}}}%%
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "17px", "lineColor": "#64748b", "edgeLabelBackground": "#ffffff"}, "flowchart": {"nodeSpacing": 34, "rankSpacing": 42, "curve": "basis"}}}%%
 flowchart TB
-    inputs["Market data<br/>and generated hypotheses"] --> backtest["Cost-aware<br/>backtesting"]
-    backtest --> validation["60 / 20 / 20<br/>validation gates"]
-    validation --> shadow["Live shadow testing<br/>no orders"]
-    shadow --> proposed["Proposed strategy<br/>human review required"]
-```
+    subgraph evidence["01 · RESEARCH EVIDENCE"]
+        direction LR
+        inputs(["MARKET DATA<br/>+ HYPOTHESES"]):::source --> validation["COST-AWARE BACKTEST<br/>60 / 20 / 20 validation"]:::research
+        validation --> shadow["LIVE SHADOW<br/>predictions · no orders"]:::live
+        shadow --> proposal(["ELIGIBLE PROPOSAL"]):::proposal
+    end
 
-### From proposal to paper execution
+    subgraph activation["02 · CONTROLLED ACTIVATION"]
+        direction LR
+        human{"HUMAN REVIEW<br/>install + arm"}:::gate --> books["AUTOMATED<br/>PAPER BOOKS"]:::execution
+        books <--> venues(["LIVE VENUE<br/>INFRASTRUCTURE"]):::neutral
+    end
 
-```mermaid
-%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 65, "curve": "linear"}}}%%
-flowchart TB
-    proposed["Proposed strategy"] --> approval["Human installation<br/>and arming decision"]
-    approval --> books["Automated paper books"]
-    books <--> venues["Live venue infrastructure"]
-```
+    proposal --> human
 
-### From recorded state to readers
-
-```mermaid
-%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 60, "rankSpacing": 60, "curve": "linear"}}}%%
-flowchart TB
-    research["Research results"] --> state["Versioned read models"]
-    journals["Execution journals"] --> state
-    state --> api["Read-oriented API"]
-    api --> private["Private operations dashboard"]
-    api --> public["Public view-only demonstration"]
+    classDef source fill:#fff7ed,stroke:#f59e0b,color:#7c2d12,stroke-width:2px,font-weight:600;
+    classDef research fill:#111827,stroke:#f59e0b,color:#f9fafb,stroke-width:2px,font-weight:600;
+    classDef live fill:#ecfdf5,stroke:#059669,color:#064e3b,stroke-width:2px,font-weight:600;
+    classDef proposal fill:#fffbeb,stroke:#d97706,color:#78350f,stroke-width:2px,font-weight:700;
+    classDef gate fill:#fef3c7,stroke:#b45309,color:#78350f,stroke-width:2px,font-weight:700;
+    classDef execution fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,stroke-width:2px,font-weight:600;
+    classDef neutral fill:#f8fafc,stroke:#64748b,color:#334155,stroke-width:2px,font-weight:600;
+    style evidence fill:#fffaf0,stroke:#f59e0b,stroke-width:2px,color:#7c2d12
+    style activation fill:#f8fafc,stroke:#334155,stroke-width:2px,color:#111827
+    linkStyle default stroke:#64748b,stroke-width:2px;
 ```
 
 Research, live observation, strategy eligibility, execution, and presentation
@@ -69,16 +66,9 @@ read-only methodology accordion. Clicking the row expands or collapses an
 explanation; it does not start research, change a threshold, select a strategy,
 arm a service, or place an order.
 
-```mermaid
-%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 60, "rankSpacing": 60, "curve": "linear"}}}%%
-flowchart TB
-    click["Click: How the BTC Research Lab works"] --> panel["Expand the read-only methodology guide"]
-    panel --> split["60 / 20 / 20<br/>train · validation · holdout"]
-    split --> costs["Fees · spread · slippage<br/>and modeled-price caveats"]
-    costs --> gates["Backtest gates<br/>and shadow-to-proposed gates"]
-    gates --> active["What install and active mean<br/>versus human arming"]
-    panel -. never triggers .-> actions["Research runs · configuration changes<br/>strategy installation · order placement"]
-```
+| Clicking reveals | Clicking never triggers |
+|---|---|
+| The 60 / 20 / 20 split, measured-cost model, promotion gates, modeled-price caveats, and the meaning of *installed* and *active*. | Research runs, configuration changes, strategy installation, service arming, or order placement. |
 
 The expanded guide reads current methodology values from the dashboard data so
 its fee and friction descriptions remain aligned with the research engine. It

@@ -10,46 +10,53 @@ remain deterministic on shared hardware.
 
 ## Production topology
 
-### Research and promotion plane
-
 ```mermaid
-%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 65, "curve": "linear"}}}%%
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "17px", "lineColor": "#64748b", "edgeLabelBackground": "#ffffff"}, "flowchart": {"nodeSpacing": 30, "rankSpacing": 40, "curve": "basis"}}}%%
 flowchart TB
-    sources["Market data<br/>and model providers"] --> generation["Strategy-family<br/>generation"]
-    generation --> backtest["Cost-aware<br/>backtest engines"]
-    backtest --> validation["Chronological and<br/>statistical validation"]
-    validation --> shadow["Live shadow<br/>evaluation"]
-    shadow --> registry["Versioned proposal<br/>registry"]
+    subgraph research["01 · RESEARCH + PROMOTION"]
+        direction LR
+        sources(["MARKET + MODEL<br/>INPUTS"]):::source --> engine["GENERATE +<br/>BACKTEST"]:::researchNode
+        engine --> evidence["VALIDATE +<br/>SHADOW"]:::evidence
+        evidence --> proposal(["VERSIONED<br/>PROPOSAL"]):::proposal
+    end
+
+    subgraph execution["02 · CONTROLLED EXECUTION"]
+        direction LR
+        approval{"HUMAN APPROVAL<br/>+ RUNTIME GATES"}:::gate --> books["INDEPENDENT<br/>PAPER BOOKS"]:::executionNode
+        books <--> venues(["BROKER +<br/>VENUE APIS"]):::external
+    end
+
+    subgraph product["03 · PRODUCT + OBSERVABILITY"]
+        direction LR
+        state["VERSIONED RESULTS<br/>+ JOURNALS"]:::state --> api["FASTAPI<br/>READ MODELS"]:::api
+        api --> views(["PRIVATE OPS<br/>+ PUBLIC VIEW"]):::view
+    end
+
+    proposal --> approval
+    books --> state
+    ops(["SYSTEMD · GOVERNOR · MONITORING"]):::ops -.-> engine
+    ops -.-> books
+    ops -.-> api
+
+    classDef source fill:#fff7ed,stroke:#f59e0b,color:#7c2d12,stroke-width:2px,font-weight:700;
+    classDef researchNode fill:#111827,stroke:#f59e0b,color:#f9fafb,stroke-width:2px,font-weight:700;
+    classDef evidence fill:#ecfdf5,stroke:#059669,color:#064e3b,stroke-width:2px,font-weight:700;
+    classDef proposal fill:#fffbeb,stroke:#d97706,color:#78350f,stroke-width:2px,font-weight:700;
+    classDef gate fill:#fef3c7,stroke:#b45309,color:#78350f,stroke-width:2px,font-weight:700;
+    classDef executionNode fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,stroke-width:2px,font-weight:700;
+    classDef external fill:#f8fafc,stroke:#64748b,color:#334155,stroke-width:2px,font-weight:700;
+    classDef state fill:#f1f5f9,stroke:#475569,color:#1e293b,stroke-width:2px,font-weight:700;
+    classDef api fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e,stroke-width:2px,font-weight:700;
+    classDef view fill:#ecfeff,stroke:#0891b2,color:#164e63,stroke-width:2px,font-weight:700;
+    classDef ops fill:#111827,stroke:#94a3b8,color:#f8fafc,stroke-width:2px,font-weight:700;
+    style research fill:#fffaf0,stroke:#f59e0b,stroke-width:2px,color:#7c2d12
+    style execution fill:#f8fafc,stroke:#334155,stroke-width:2px,color:#111827
+    style product fill:#f0f9ff,stroke:#0284c7,stroke-width:2px,color:#0c4a6e
+    linkStyle default stroke:#64748b,stroke-width:2px;
 ```
 
-### Execution plane
-
-```mermaid
-%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 65, "curve": "linear"}}}%%
-flowchart TB
-    registry["Eligible proposal"] --> approval["Human installation<br/>and arming"]
-    approval --> controls["Mode and<br/>exposure controls"]
-    controls --> books["Independent<br/>paper books"]
-    books <--> venues["Broker and<br/>venue APIs"]
-    books --> journals["Reconciliation<br/>and journals"]
-```
-
-### Product and operations planes
-
-```mermaid
-%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 60, "rankSpacing": 60, "curve": "linear"}}}%%
-flowchart TB
-    state["Research results and execution journals"] --> api["FastAPI aggregation layer"]
-    api --> private["Authenticated operations dashboard"]
-    api --> public["Public view-only build"]
-    scheduler["systemd services and timers"] -. schedules .-> state
-    governor["Priority-aware compute governor"] -. protects .-> state
-    sentinel["Health and freshness monitoring"] -. observes .-> state
-    deploy["Tested, serialized deployment"] -. releases .-> api
-```
-
-These diagrams are intentionally architectural rather than source-level. They
-show runtime responsibilities, promotion flow, and trust boundaries while
+The diagram is intentionally architectural rather than source-level. It shows
+runtime responsibilities, promotion flow, and trust boundaries while
 omitting private package structure, account identifiers, configuration values,
 and venue-specific execution logic.
 

@@ -23,21 +23,34 @@ is to build a controlled path from hypothesis generation to production
 observation while preserving the economics, evidence, and operational state
 required to decide whether a result should be trusted.
 
-## Strategy promotion decision map
+## Two-stage promotion path
 
 ```mermaid
-%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 55, "curve": "linear"}}}%%
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "17px", "lineColor": "#64748b", "edgeLabelBackground": "#ffffff"}, "flowchart": {"nodeSpacing": 32, "rankSpacing": 42, "curve": "basis"}}}%%
 flowchart TB
-    candidate["Backtested candidate"] --> economics{"Current economics version?"}
-    economics -- "No" --> reprice["Reprice before comparison"]
-    economics -- "Yes" --> validation{"Validation gates pass?"}
-    validation -- "No" --> research["Remain in research"]
-    validation -- "Yes" --> shadow["Enter live shadow testing<br/>predictions only"]
-    shadow --> evidence{"Required live evidence passes?"}
-    evidence -- "No" --> observe["Continue observing<br/>or demote"]
-    evidence -- "Yes" --> proposed["Mark as proposed"]
-    proposed --> human["Human installation review"]
-    human --> paper["Eligible for paper execution"]
+    subgraph automated["01 · AUTOMATED EVIDENCE"]
+        direction LR
+        candidate(["BACKTESTED<br/>CANDIDATE"]):::source --> offline{"CURRENT COSTS +<br/>OFFLINE GATES"}:::gate
+        offline -- "pass" --> shadow["LIVE SHADOW<br/>no orders"]:::live
+        shadow --> evidence{"LIVE EVIDENCE<br/>PASSES"}:::gate
+        evidence -- "pass" --> proposal(["PROPOSED"]):::proposal
+    end
+
+    proposal --> human{"02 · HUMAN<br/>INSTALLATION REVIEW"}:::human
+    human -- "approve + arm" --> paper(["PAPER<br/>EXECUTION"]):::execution
+    offline -. "reprice / revise" .-> hold["RESEARCH<br/>OR OBSERVE"]:::hold
+    evidence -. "not yet" .-> hold
+    human -. "not approved" .-> hold
+
+    classDef source fill:#fff7ed,stroke:#f59e0b,color:#7c2d12,stroke-width:2px,font-weight:700;
+    classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f,stroke-width:2px,font-weight:700;
+    classDef live fill:#ecfdf5,stroke:#059669,color:#064e3b,stroke-width:2px,font-weight:700;
+    classDef proposal fill:#111827,stroke:#f59e0b,color:#f9fafb,stroke-width:2px,font-weight:700;
+    classDef human fill:#fffbeb,stroke:#b45309,color:#78350f,stroke-width:2px,font-weight:700;
+    classDef execution fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,stroke-width:2px,font-weight:700;
+    classDef hold fill:#f8fafc,stroke:#64748b,color:#334155,stroke-width:2px,font-weight:700;
+    style automated fill:#fffaf0,stroke:#f59e0b,stroke-width:2px,color:#7c2d12
+    linkStyle default stroke:#64748b,stroke-width:2px;
 ```
 
 The automated pipeline can advance a candidate only as far as **proposed**.
