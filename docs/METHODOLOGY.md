@@ -1,19 +1,21 @@
-# Methodology — the rejection criteria are the product
+# Methodology — statistical validity before strategy promotion
 
-This document explains how Forge decides that a strategy result can be
-believed: the measured cost model, the data discipline, the multiple-testing
-correction, and the negative results that stopped work. It exists because the
-research pipeline has evaluated 33,000+ strategy variants over 540 days of
-BTC data and almost all of them fail — that is the design, since a research
-pipeline that mostly says yes is a random-number generator with extra steps.
-Everything below exists to make a *yes* mean something.
+Forge treats rejection criteria as a primary research output. This document
+defines the controls used to determine whether a reported strategy result is
+credible: measured transaction costs, chronological data isolation,
+family-wise multiple-testing correction, versioned market economics, and the
+retention of negative findings. The pipeline has evaluated more than 33,000
+strategy variants across 540 days of BTC market data, and the overwhelming
+majority fail. That rejection rate is intentional; promotion is reserved for
+results that remain defensible after costs, selection effects, and live
+out-of-sample observation.
 
 ## Trading costs are measured, not assumed
 
-Every backtest charges the venue's actual fee formula — for Kalshi 15-minute
-binaries, `ceil(0.07·C·P·(1−P))` per execution, verified against the official
-fee schedule — plus a bid–ask half-spread. The half-spread is not a modeling
-assumption; it comes from a collector that logs the live order book:
+Every backtest applies the venue's actual fee schedule. For Kalshi 15-minute
+binary contracts, that is `ceil(0.07·C·P·(1−P))` per execution, independently
+verified against the published schedule, plus a bid–ask half-spread measured
+by a collector that records the live order book:
 
 ```python
 # algo-trading/btc_lab/config.py
@@ -21,35 +23,37 @@ mid_half_spread_cents: float = 5.0    # against the trader, 0.10 <= p <= 0.90
 tail_half_spread_cents: float = 4.25  # deci-cent tick region: p<0.10 or p>0.90
 ```
 
-Those numbers used to be 0.5¢ and 0.1¢ — plausible-sounding, and wrong by an
-order of magnitude. A study of the recorded book (n=398 tradable
-entry-minute quotes; median full spread ~10–11¢) forced a recalibration to
-5.0¢ and a
-re-pricing of the entire leaderboard. The venue's top-ranked strategies went
-from
-**+$67.53 to −$26.50 overnight.** It shipped anyway, because the
-alternative is a dashboard that lies at the exact moment a promotion
-decision reads it. The best strategy's break-even spread (6.11¢) is now
-displayed next to the measured one — that margin *is* the research question.
+The original values were 0.5¢ and 0.1¢: superficially plausible assumptions
+that understated observed execution costs by approximately one order of
+magnitude. Analysis of 398 tradable entry-minute quotes found a median full
+spread of approximately 10–11¢, requiring recalibration to 5.0¢ and complete
+repricing of the leaderboard. The venue's highest-ranked strategy moved from
+**+$67.53 to −$26.50** under the corrected economics. The result was published
+unchanged. A promotion system is only useful if adverse recalibrations are
+reflected immediately rather than suppressed. The dashboard now displays the
+leading strategy's 6.11¢ break-even spread beside the measured spread because
+the difference between those values defines the remaining execution margin.
 
-The original 0.1¢ "tail" number was a category error worth naming: below 10¢
-the venue's tick size is 0.1¢, and the tick size had been written down as the
-spread. The book can quote in fine ticks and still be 8¢ wide.
+The original 0.1¢ tail value also exposed a category error: the venue's tick
+size below 10¢ had been treated as its spread. Fine quote increments do not
+imply narrow liquidity; an order book that moves in 0.1¢ ticks can still be
+8¢ wide.
 
-## Train / validation / holdout, and the holdout stays pristine
+## Chronological train, validation, and holdout isolation
 
-Data splits 60/20/20 chronologically. Search and refinement see only the
-training segment; promotion tests read validation; holdout is spent only on
-the final read of a candidate that has already passed everything else. Any
-dashboard panel that compares exits or parameters is labeled with the segment
-it reads, because a selection-driven number dressed up as out-of-sample is
-the standard way quant research fools its author.
+Data is divided chronologically into 60% training, 20% validation, and 20%
+holdout segments. Search and refinement are restricted to training data;
+promotion tests operate on validation data; and holdout data is consumed only
+for the final assessment of a candidate that has already cleared every prior
+gate. Dashboard comparisons identify the segment they use, preventing
+selection-conditioned results from being presented as out-of-sample evidence.
 
-## 33,000 variants must pay for their own multiple testing
+## Multiple-testing control across 33,000 variants
 
-Selecting the best of N candidates clears any fixed significance bar by luck
-alone as N grows, so the promotion test's t-statistic threshold rises with
-the number of concurrent candidates:
+As the number of candidates increases, selecting the best result will
+eventually clear any fixed significance threshold through chance alone.
+Forge therefore raises the promotion t-statistic floor with the number of
+concurrent candidates:
 
 ```python
 # algo-trading/btc_lab/pipeline.py
@@ -61,50 +65,52 @@ def _mt_floor(n_concurrent: int) -> float:
     At N=1 it is 1.645 (a plain one-sided 5% test); it rises with N."""
 ```
 
-The statistic under the threshold is a t-test on the mean P&L of each
-strategy's **own realized payoffs**, net of modeled fees and spread. It
-replaced a fixed hold-to-expiry break-even win rate that seven of ten live
-strategies didn't even have (a stop-loss strategy's break-even is not 52.5%).
-N — the concurrent test count — is fixed when a strategy enters shadow
-testing (live predictions with no orders placed), so a threshold that rises
-later cannot retroactively penalize a strategy that was already accumulating
-evidence honestly.
+The underlying statistic is a t-test on the mean P&L of each strategy's
+**realized payoff distribution**, net of fees and measured spread. This
+replaced a fixed hold-to-expiry break-even win rate that was structurally
+inapplicable to seven of ten live strategies; a strategy with protective exits
+does not share the 52.5% break-even rate of a hold-to-expiry strategy. The
+concurrent test count, N, is fixed when a strategy enters shadow testing so
+that subsequent growth in the candidate pool cannot retroactively alter the
+evidentiary threshold under which observations were collected.
 
 ## Results are stamped with the economics that produced them
 
-When cost assumptions change, historical results stop being comparable. Each
-venue carries an `ECONOMICS_VERSION`, every recorded result is stamped with
-it, and every consumer — the leaderboard, best-performer selection,
-re-evaluation, entry into shadow testing — treats a result from stale
-economics as unusable rather than optimistically comparable. The engine
-version alone can't do this job: engine changes that don't touch pricing
-would falsely invalidate months of results, and pricing changes hidden in a
-patch release would silently poison comparisons.
+When execution economics change, historical results cease to be directly
+comparable. Each venue defines an `ECONOMICS_VERSION`, every result is stamped
+with that version, and all downstream consumers — leaderboard ranking,
+candidate selection, reevaluation, and admission to shadow testing — reject
+results produced under stale economics. Engine versioning is intentionally
+separate: non-economic engine changes should not invalidate months of pricing
+history, while a pricing correction must never remain hidden inside an
+otherwise compatible release.
 
-## Negative results are kept, and they stop work
+## Negative findings terminate unsupported work
 
-Three studies exist specifically to *stop* things from being built:
+Three completed studies produced explicit no-go decisions:
 
-- **Maker viability** — re-priced all 625 perpetual variants under
-  best-case maker economics (fill-everything, 5 bps). 0 of 625 significant on
-  holdout → the maker execution system that depended on this study does not
-  get built.
-- **Timeframe rescue** — swept 1h/2h/4h/6h bars over the perpetual strategy
-  families, 870 evaluations, including a friction-halved control. 0 positive
-  → the edge isn't hiding at another horizon.
-- **BTC/ETH pair trading** — 202 spread-reversion configurations. Not viable.
+- **Maker viability** — Repriced all 625 perpetual variants under favorable
+  maker assumptions: complete fills at 5 basis points. None achieved holdout
+  significance, so the dependent maker-execution system was not built.
+- **Timeframe sensitivity** — Evaluated the perpetual strategy families across
+  1h, 2h, 4h, and 6h bars in 870 experiments, including a half-friction
+  control. None produced a positive result, providing no evidence that the
+  proposed edge existed at another horizon.
+- **BTC/ETH pair trading** — Tested 202 spread-reversion configurations; none
+  met the viability threshold.
 
-The perpetual venue's verdict after 1,161 honest evaluations is currently
-"fees ≈ loss, no surviving hypothesis except walk-forward retraining and
-LLM-generated families, which are still competing through the normal gates."
-The dashboard says this out loud. A research platform that can't display its
-own dead ends will eventually trade one.
+After 1,161 evaluations, the current perpetual-futures conclusion is that
+losses approximately equal fees, with no surviving hypothesis beyond
+walk-forward retraining and LLM-generated families that remain subject to the
+standard gates. The dashboard presents that conclusion directly. Preserving
+negative findings prevents rejected hypotheses from quietly re-entering the
+execution roadmap.
 
 ## Shadow testing is the same code path as backtesting
 
-Strategies in shadow testing predict live 15-minute windows with no orders
-placed,
-through the same engine, same exits, same cost model as the backtest. A
-reconciliation check flags any strategy whose live signal frequency diverges
-from its backtest's, because that divergence is what look-ahead bias looks
-like when it escapes into production.
+Strategies under shadow testing generate predictions for live 15-minute
+windows without placing orders. They use the same engine, exit logic, and cost
+model as their backtests. A reconciliation process flags material divergence
+between live and historical signal frequencies, providing an operational
+control for detecting look-ahead bias or implementation drift after a model
+enters production data flow.

@@ -1,104 +1,49 @@
-# Forge — a personal quant research & trading platform
+# Forge — automated quantitative research and trading infrastructure
 
-**Live read-only demo: [forge-view.5.78.193.177.sslip.io](https://forge-view.5.78.193.177.sslip.io)** — real data, no login, nothing on it can place an order.
+**Live read-only demonstration: [forge-view.5.78.193.177.sslip.io](https://forge-view.5.78.193.177.sslip.io)** — production data, no authentication required, and no capability to place orders.
 
-Forge is an automated trading-research platform that runs end to end on a
-single Linux server. It invents trading strategies and makes them prove
-themselves. Backtests charge **measured** costs: real exchange fees plus the
-bid–ask spread recorded from the live order book, not an estimate. Survivors
-are shadow-tested — live predictions on real markets, no orders placed. Only
-strategies that clear statistical tests built to rule out luck get promoted.
-Three automated paper-trading books then trade the winners 24/7 on real
-venues.
+Forge is an end-to-end automated quantitative research and algorithmic trading platform deployed on a single Linux server. The platform systematically generates multi-variant trading strategies and rigorously backtests them against measured market costs, including live exchange fees and observed bid–ask spreads rather than theoretical estimates. To preserve statistical integrity, surviving models undergo shadow testing through live, order-free prediction streams. Strategies that clear the platform's strict, risk-adjusted performance thresholds are promoted to three automated paper-trading books operating continuously across Kalshi and Alpaca.
 
-The full source stays private because it runs live
-accounts; this repo is the guided tour, with short excerpts quoted from the
-real code.
+The public demonstration exposes the real production dashboard and live research outputs through a deliberately constrained, read-only interface. The complete source remains private because it operates continuously against connected brokerage and exchange accounts; this repository provides an auditable technical overview, including focused excerpts from the production codebase.
 
-## The three books (live on the demo's front page)
+## Automated trading books
 
-| Book | Venue | What it does |
+| Book | Venue | Mandate |
 |---|---|---|
-| **BTC 15-min predictor** | Kalshi binary markets | Trades the research pipeline's best-performing algorithm on 15-minute BTC up/down contracts. All stats reflect only the current strategy version, and are labeled that way. |
-| **Equity trader** | Alpaca, $1M paper book | A long-only conviction book drawn from a 600-name research screen, with a dynamic T-bill reserve and an LLM reviewer in an advisory role. Scored against SPY, not against zero. |
-| **Options trader** | Alpaca, cash-secured-put wheel | Scans, opens, manages and closes its own positions three times a day. Every decision is logged with its reason. |
+| **BTC 15-minute predictor** | Kalshi binary markets | Executes the research pipeline's highest-ranked algorithm against 15-minute BTC up/down contracts. Every performance statistic is scoped to the current strategy version and labeled accordingly. |
+| **Equity trader** | Alpaca, $1 million paper account | Maintains a long-only, conviction-weighted portfolio selected from a 600-company research universe, with a dynamic Treasury-bill reserve and an LLM reviewer serving strictly in an advisory capacity. Performance is benchmarked against SPY rather than against zero. |
+| **Options trader** | Alpaca, cash-secured-put wheel | Independently scans, opens, manages, and closes positions three times per trading day. Every decision is recorded with its underlying rationale. |
 
-All three trade paper money on real venues — the point is the machinery, and
-the numbers are allowed to be red. The demo's landing page shows their live
-P&L, including the flat one.
+All three books trade paper capital through live venue infrastructure. The objective is to validate the machinery under realistic operating conditions, not to curate favorable returns; the public landing page therefore reports every book's live P&L, including flat or negative performance.
 
-## Where to look
+## Technical documentation
 
-- **[docs/METHODOLOGY.md](docs/METHODOLOGY.md)** — why most of this system
-  exists to say *no*. The measured bid–ask spread that repriced the whole
-  leaderboard from +$67 to −$26 (and why that number shipped anyway), the
-  significance threshold that rises with the number of strategies tested — so
-  33,000 tries can't crown a winner on luck alone — and the three studies
-  whose result was "don't build it."
-- **[docs/SAFETY.md](docs/SAFETY.md)** — how a system that lets an LLM write
-  and execute strategy code stays safe: a static code screen inside a
-  bubblewrap sandbox with a read-only filesystem and no network access. Also
-  the stop-loss ordering bug that produced four identical −$5,927 backtests,
-  and the rule that enabling real execution is always a human act.
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — everything on one 4-core,
-  8 GB server: how the research daemon learned to yield CPU to the live trader
-  (the 1-minute load average ignores process priority), and the deploy
-  postmortem where a single committed symlink broke every deploy for ten days.
-- **[docs/DESIGN.md](docs/DESIGN.md)** — the dashboard's honesty rules: every
-  win rate carries its measurement window, a calibrated 4.25¢ never renders as
-  4.3¢, and green is reserved for safe states — "LIVE" is not a color of
-  success.
+- **[Methodology](docs/METHODOLOGY.md)** — Details the measured spread model that repriced the leading strategy from +$67.53 to −$26.50; the multiple-testing correction that prevents 33,000 trials from manufacturing significance; and three formal studies whose conclusion was not to proceed.
+- **[Safety](docs/SAFETY.md)** — Describes how LLM-generated strategy code is statically screened and executed inside a network-isolated bubblewrap sandbox with a read-only filesystem. It also documents the stop-loss ordering defect that produced four identical −$5,927 backtests and the independent controls that keep live execution subject to explicit human authorization.
+- **[Architecture](docs/ARCHITECTURE.md)** — Maps the complete runtime on a four-core, 8 GB server, including the scheduler change that taught low-priority research workloads to yield correctly to live services and the deployment failure caused by a single committed symlink.
+- **[Design](docs/DESIGN.md)** — Defines the dashboard's data-integrity rules: every performance metric carries its measurement window, calibrated values retain their exact precision, and color communicates financial risk rather than operational activity.
 
-## What the demo deliberately doesn't show
+## Public/private boundary
 
-The demo is the real dashboard compiled with a view-only flag — same
-components, same live backend — minus everything that belongs to a personal
-account rather than the platform. What's excluded:
+The demonstration is the production dashboard compiled with a view-only flag. It uses the same components and live backend, but removes every surface associated with private account data or operational control:
 
-- **The owner's Robinhood account.** The full dashboard's home is an account
-  cockpit: real holdings with live P/L vs cost, a you-vs-S&P benchmark chart
-  traced from actual deposits, a risk tab, orders and watchlists, and
-  per-symbol position cards where the AI's verdict includes a recommended
-  action (buy more / hold / trim) scored against actual cost basis.
-  The demo strips all of it — the equity screen shows model output only, and
-  clicking a symbol shows research, never positions.
-- **Real options positions.** The private Options view has three sub-tabs —
-  owned puts (as reported by the broker, per-contract P/L), the recommended
-  cash-secured-put scan, and covered-call analysis on real lots. The demo
-  keeps only the scanner.
-- **Live AI Q&A.** The private dashboard has free-form ask-anything panels
-  and on-demand deep-dive regeneration (local LLMs + frontier models). Those
-  require write requests, and the demo's gateway rejects all writes — so the
-  demo serves cached analysis only, and says so where a button would be.
-- **Controls.** Installing a proposed strategy, switching the active
-  algorithm, enabling or disabling the trading services, tuning the promotion
-  threshold — all compiled out of the demo build and rejected (HTTP 403) at
-  the gateway anyway.
-- **The perpetuals venue.** The research pipeline runs two venues; the demo
-  pins to the 15-minute binaries because the perpetuals view exists mostly to
-  document negative results (see METHODOLOGY) and needs that context to read
-  fairly.
-- **The rest of Forge.** The platform also runs a Discord agent fleet
-  (research concierge, code agents), an MCP server for phone access, and a
-  private investment-club system — none of which belong in a public surface.
+- **Personal brokerage data.** The private dashboard includes live holdings, P&L relative to cost basis, deposit-adjusted S&P 500 benchmarking, risk analysis, orders, watchlists, and position-specific AI recommendations. The public equity view contains model output only; selecting a symbol exposes research, never personal positions.
+- **Live options positions.** The private options workspace covers owned puts, per-contract P&L, cash-secured-put recommendations, and covered-call analysis against actual lots. The public demonstration retains only the scanner.
+- **Interactive AI workflows.** The private dashboard includes free-form research queries and on-demand analysis generated by local and frontier models. Because those workflows require write requests, the public gateway rejects them and serves explicitly labeled cached analysis instead.
+- **Operational controls.** Strategy installation, algorithm switching, service arming, and promotion-threshold configuration are excluded from the public bundle at compile time and independently rejected by the gateway with HTTP 403.
+- **Perpetual-futures research.** The research pipeline evaluates two venues, but the public interface centers on 15-minute binary markets. The perpetuals program is dominated by negative findings and is documented in the methodology rather than presented without the context required to interpret it responsibly.
+- **Unrelated private systems.** Forge also operates a Discord-based agent fleet, an MCP service for mobile access, and private investment-club infrastructure. These systems are intentionally outside the public product surface.
 
-## Stack
+## Technology
 
-Python research engines (numpy/pandas, walk-forward and LLM-designed strategy
-families) · FastAPI backend · Next.js 14 dashboard · systemd units and timers
-on a single Linux VPS · local LLMs via Ollama, frontier models for design ·
-GitHub Actions → self-locking deploy script.
+Python research engines using NumPy and pandas; walk-forward and LLM-generated strategy families; FastAPI; Next.js 14; systemd services and timers on a single Linux VPS; local inference through Ollama; frontier models for strategy design; and GitHub Actions connected to a self-locking deployment pipeline.
 
-## Also public
+## Related project
 
-[voteconcordia](https://github.com/rohanjoglekar/voteconcordia) — a real-money
-investment club decided by vote, executed in each member's own brokerage
-account. Same philosophy: fail open where it protects people,
-fail closed where it protects money.
+[Concordia](https://github.com/rohanjoglekar/voteconcordia) is a real-money, vote-governed investment club that executes a shared portfolio mandate independently within each member's own brokerage account. It applies the same operating principle: preserve availability where doing so protects participants, and fail closed wherever uncertainty could affect capital.
 
-## Status
+## Operating status
 
-The research pipeline runs around the clock; the books trade paper on real
-venues. Enabling live trading is a manual, human step and stays that way.
+The research pipeline runs continuously, and all three automated books execute against paper accounts on live venues. Enabling live trading remains a manual, human-authorized action by design.
 
 Contact: rohannj29@gmail.com
