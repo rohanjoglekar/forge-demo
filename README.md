@@ -3,12 +3,13 @@
 **Live read-only demo: [forge-view.5.78.193.177.sslip.io](https://forge-view.5.78.193.177.sslip.io)** — real data, no login, nothing on it can place an order.
 
 Forge is an automated trading-research platform that runs end to end on a
-single Linux server. It generates trading-strategy variants, backtests them
-against **measured** costs (real exchange fees plus the bid–ask spread
-recorded from the live order book, not an estimate), shadow-tests the
-survivors — live predictions with no orders placed — and promotes only the
-strategies that clear statistical tests designed to punish luck. Three
-automated paper-trading books then trade the output, 24/7, on real venues.
+single Linux server. It invents trading strategies and makes them prove
+themselves. Backtests charge **measured** costs: real exchange fees plus the
+bid–ask spread recorded from the live order book, not an estimate. Survivors
+are shadow-tested — live predictions on real markets, no orders placed. Only
+strategies that clear statistical tests built to rule out luck get promoted.
+Three automated paper-trading books then trade the winners 24/7 on real
+venues.
 
 The full source stays private because it runs live
 accounts; this repo is the guided tour, with short excerpts quoted from the
